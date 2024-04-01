@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
-  <Transactions>
-    <Transaction>2024.03.22 18:13:35.284,=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
-    <Transaction>2024.03.22 18:13:35.394,=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.cpp</Transaction>
-    <Transaction>2024.03.22 18:14:07.951,C:\Users\Win11\Documents\Desktop\hoteli\ProjektHotel.cpp=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.cpp</Transaction>
-    <Transaction>2024.03.22 18:14:07.951,C:\Users\Win11\Documents\Desktop\hoteli\ProjektHotel.h=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.h</Transaction>
-    <Transaction>2024.03.22 18:14:07.951,C:\Users\Win11\Documents\Desktop\hoteli\ProjektHotel.dfm=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
-    <Transaction>2024.03.22 18:29:54.508,C:\Users\Win11\Documents\Desktop\hoteli\Project1PCH1.h=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
-    <Transaction>2024.03.22 18:29:54.532,C:\Users\Win11\Documents\Desktop\hoteli\Project1.cbproj=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Project1.cbproj</Transaction>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.951,C:\Users\Win11\Documents\Desktop\hoteli\ProjektHotel.cpp=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.034,=C:\Users\Danko\Desktop\NTP\hoteli\ProjektHotel-main\Unit2.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.394,=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.cpp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.284,=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.951,C:\Users\Win11\Documents\Desktop\hoteli\ProjektHotel.dfm=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.951,C:\Users\Win11\Documents\Desktop\hoteli\ProjektHotel.h=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Unit2.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.508,C:\Users\Win11\Documents\Desktop\hoteli\Project1PCH1.h=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Project1PCH1.h</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.532,C:\Users\Win11\Documents\Desktop\hoteli\Project1.cbproj=C:\Users\Win11\Documents\Embarcadero\Studio\Projects\Project1.cbproj</Transaction>
   </Transactions>
 </BorlandProject>

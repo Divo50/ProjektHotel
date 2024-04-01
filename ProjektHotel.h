@@ -7,7 +7,7 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.Forms.hpp>
-#include <map.h>
+#include <map>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -18,10 +18,17 @@ __published:	// IDE-managed Components
 	TEdit *EditKorisnik;
 	TEdit *EditLozinka;
 	TComboBox *ComboBox1;
+	TButton *ButtonReg;
 	void __fastcall ComboBox1Change(TObject *Sender);
-private:	// User declarations
+	void __fastcall ButtonRegClick(TObject *Sender);
+	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+	void __fastcall FormCreate(TObject *Sender);
+private:
+  TFont* currentFont;
+  TColor backgroundColor;
+	// User declarations
 public:		// User declarations
-	std::map<String, std::map<String, String>> translation
+	std::map<String, std::map<String, String>> translation;
 	__fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
