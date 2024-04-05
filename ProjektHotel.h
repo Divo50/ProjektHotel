@@ -19,13 +19,16 @@ __published:	// IDE-managed Components
 	TEdit *EditLozinka;
 	TComboBox *ComboBox1;
 	TButton *ButtonReg;
+	TCheckBox *CheckBoxPassword;
 	void __fastcall ComboBox1Change(TObject *Sender);
 	void __fastcall ButtonRegClick(TObject *Sender);
 	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall CheckBoxPasswordClick(TObject *Sender);
+	void __fastcall FormShow(TObject *Sender);
 private:
-  TFont* currentFont;
-  TColor backgroundColor;
+	  TColor backgroundColor;
+      TFont *currentFont;
 	// User declarations
 public:		// User declarations
 	std::map<String, std::map<String, String>> translation;

@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Hotel'
-  ClientHeight = 299
-  ClientWidth = 308
+  ClientHeight = 293
+  ClientWidth = 314
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -12,6 +12,7 @@ object Form1: TForm1
   Font.Style = []
   OnClose = FormClose
   OnCreate = FormCreate
+  OnShow = FormShow
   TextHeight = 15
   object LabelHotel: TLabel
     Left = 96
@@ -68,8 +69,8 @@ object Form1: TForm1
   end
   object ComboBox1: TComboBox
     Left = 48
-    Top = 176
-    Width = 225
+    Top = 231
+    Width = 89
     Height = 23
     TabOrder = 2
     Text = 'Izaberi jezik'
@@ -79,12 +80,21 @@ object Form1: TForm1
       'EN')
   end
   object ButtonReg: TButton
-    Left = 64
-    Top = 232
-    Width = 121
-    Height = 25
+    Left = 136
+    Top = 184
+    Width = 96
+    Height = 33
     Caption = 'Registriraj se'
     TabOrder = 3
     OnClick = ButtonRegClick
+  end
+  object CheckBoxPassword: TCheckBox
+    Left = 136
+    Top = 148
+    Width = 121
+    Height = 17
+    Caption = 'Prika'#382'i lozinku'
+    TabOrder = 4
+    OnClick = CheckBoxPasswordClick
   end
 end
