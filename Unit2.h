@@ -12,7 +12,12 @@ class TForm2 : public TForm
 {
 __published:	// IDE-managed Components
 	TLabel *LabelDobrodosli;
-private:	// User declarations
+	void __fastcall FormCreate(TObject *Sender);
+	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
+private:
+	TFont* currentFont;
+	TColor backgroundColor;
+// User declarations
 public:		// User declarations
 	__fastcall TForm2(TComponent* Owner);
 };
