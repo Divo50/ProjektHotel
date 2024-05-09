@@ -3,26 +3,23 @@
 #include <vcl.h>
 #pragma hdrstop
 
-#include "UnitTCPclient.h"
+#include "UnitTCP.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TFormTCPclient *FormTCPclient;
+TFormTCP *FormTCP;
 //---------------------------------------------------------------------------
-__fastcall TFormTCPclient::TFormTCPclient(TComponent* Owner)
+__fastcall TFormTCP::TFormTCP(TComponent* Owner)
 	: TForm(Owner)
 {
 }
 //---------------------------------------------------------------------------
-void __fastcall TFormTCPclient::ButtonTCPClick(TObject *Sender)
+
+void __fastcall TFormTCP::IdTCPServer1Execute(TIdContext *AContext)
 {
-	IdTCPClient1->Host = EHost->Text;
-	IdTCPClient1->Connect();
-	IdTCPClient1->Socket->Write(EditTCPclient->Text.ToInt());
-	int brojGostiju = IdTCPClient1->Socket->ReadInt32();
-	ShowMessage(brojGostiju);
-	IdTCPClient1->Disconnect();
+	 int brGostiju = AContext->Connection->Socket->ReadInt32();
+	 AContext->Connection->Socket->Write(brGostiju * 3);
+	 AContext->Connection->Disconnect();
 }
 //---------------------------------------------------------------------------
-
 
