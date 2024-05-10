@@ -1,4 +1,4 @@
-ï»¿//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 #include <vcl.h>
 #pragma hdrstop
@@ -15,73 +15,113 @@ __fastcall TFormXML::TFormXML(TComponent* Owner)
 {
 }
 //---------------------------------------------------------------------------
+
 void __fastcall TFormXML::GumbUcitajXMLClick(TObject *Sender)
 {
-	 // uÄitaj adresar koriÅ¡tenjem komponente TXMLDocument komponente "XMLDocument1"
-   _di_IXMLHotelType hotel = GetHotel(XMLDocument1);
-   ListViewXML->Items->Clear();
+
+_di_IXMLHotelType hotel = GetHotel(XMLDocument1);
+
+      ListViewXML->Items->Clear();
    for(int i = 0; i < hotel->Count; i++){
 	 ListViewXML->Items->Add();
 	 ListViewXML->Items->Item[i]->Caption = hotel->Soba[i]->brojSobe;
-	 ListViewXML->Items->Item[i]->SubItems->Add(hotel->Soba[i]->imeGosta);
-	 ListViewXML->Items->Item[i]->SubItems->Add(hotel->Soba[i]->prezimeGosta);
-	 ListViewXML->Items->Item[i]->SubItems->Add(hotel->Soba[i]->brojKreveta);
-	 ListViewXML->Items->Item[i]->SubItems->Add(hotel->Soba[i]->cijena);
-	 ListViewXML->Items->Item[i]->SubItems->Add(hotel->Soba[i]->balkon);
+	 ListViewXML->Items->Item[i]->SubItems->Add (hotel->Soba[i]->imeGosta);
+	 ListViewXML->Items->Item[i]->SubItems->Add (hotel->Soba[i]->prezimeGosta);
+	 ListViewXML->Items->Item[i]->SubItems->Add (hotel->Soba[i]->brojKreveta);
+	 ListViewXML->Items->Item[i]->SubItems->Add (hotel->Soba[i]->cijena);
+     ListViewXML->Items->Item[i]->SubItems->Add (hotel->Soba[i]->balkon);
 
    }
-
 }
 //---------------------------------------------------------------------------
-void __fastcall TFormXML::GumbDodajXMLClick(TObject *Sender)
+
+
+void __fastcall TFormXML::GumbDodajXMLClickClick(TObject *Sender)
 {
-	_di_IXMLHotelType hotel = GetHotel(XMLDocument1);
-	_di_IXMLSobaType soba = hotel->Add();
+	 // Provjera praznih polja
+    if (EditSoba->Text == "" || EditIme->Text == "" || EditPrezime->Text == "" ||
+        EditKrevet->Text == "" || EditCijena->Text == "" || EditBalkon->Text == "")
+    {
+        ShowMessage("Sva polja moraju biti popunjena!");
+        return;
+    }
 
-	// Postavljanje vrijednosti pomoÄ‡u svojstava
-	soba->brojSobe = StrToInt(EditSoba->Text); // Konverzija teksta u integer
-	soba->imeGosta = EditIme->Text;
-	soba->prezimeGosta = EditPrezime->Text;
-	soba->brojKreveta = StrToInt(EditKrevet->Text); // Konverzija teksta u integer
-	soba->cijena = StrToInt(EditCijena->Text); // Konverzija teksta u integer
-	soba->balkon = EditBalkon->Text;
+    _di_IXMLHotelType hotel = GetHotel(XMLDocument1);
+    _di_IXMLSobaType soba = hotel->Add();
 
-	GumbUcitajXMLClick(Sender);
+    // Postavljanje vrijednosti pomoæu svojstava
+    soba->brojSobe = StrToInt(EditSoba->Text);
+    soba->imeGosta = EditIme->Text;
+    soba->prezimeGosta = EditPrezime->Text;
+    soba->brojKreveta = StrToInt(EditKrevet->Text);
+    soba->cijena = StrToInt(EditCijena->Text);
+    soba->balkon = EditBalkon->Text;
 
+    GumbUcitajXMLClick(Sender);
+
+    // Spremanje XML-a s lijepim formatiranjem
+    XMLDocument1->Options = XMLDocument1->Options << TXMLDocOption::doNodeAutoIndent;
 	XMLDocument1->SaveToFile("podatci.xml");
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TFormXML::GumbSaveXMLClick(TObject *Sender)
+
+void __fastcall TFormXML::GumbSaveXMLClickClick(TObject *Sender)
 {
-	_di_IXMLHotelType hotel = GetHotel(XMLDocument1);
-	_di_IXMLSobaType soba = hotel->Soba[ListViewXML->ItemIndex];
+	 // Provjera je li odabrana stavka u ListView-u
+    if (ListViewXML->ItemIndex == -1)
+    {
+        ShowMessage("Nije odabrana soba za ažuriranje!");
+        return;
+	}
 
+    _di_IXMLHotelType hotel = GetHotel(XMLDocument1);
+    _di_IXMLSobaType soba = hotel->Soba[ListViewXML->ItemIndex];
 
-	soba->brojSobe = StrToInt(EditSoba->Text);
-	soba->imeGosta = EditIme->Text;
-	soba->prezimeGosta = EditPrezime->Text;
-	soba->brojKreveta = StrToInt(EditKrevet->Text);
-	soba->cijena = StrToInt(EditCijena->Text);
-	soba->balkon = EditBalkon->Text;
+    // Provjera praznih polja
+    if (EditSoba->Text == "" || EditIme->Text == "" || EditPrezime->Text == "" ||
+        EditKrevet->Text == "" || EditCijena->Text == "" || EditBalkon->Text == "")
+    {
+        ShowMessage("Sva polja moraju biti popunjena!");
+        return;
+    }
 
-	GumbUcitajXMLClick(Sender);
+    // Ažuriranje sobe
+    soba->brojSobe = StrToInt(EditSoba->Text);
+    soba->imeGosta = EditIme->Text;
+    soba->prezimeGosta = EditPrezime->Text;
+    soba->brojKreveta = StrToInt(EditKrevet->Text);
+    soba->cijena = StrToInt(EditCijena->Text);
+    soba->balkon = EditBalkon->Text;
+
+    GumbUcitajXMLClick(Sender);
 
 	XMLDocument1->SaveToFile("podatci.xml");
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TFormXML::GumbBrisiXMLClick(TObject *Sender)
+void __fastcall TFormXML::GumbBrisiXMLClickClick(TObject *Sender)
 {
-
-	if(ListViewXML->ItemIndex == -1)
+	 // Provjera je li odabrana stavka u ListView-u
+	if (ListViewXML->ItemIndex == -1)
+	{
+		ShowMessage("Nije odabrana soba za brisanje!");
 		return;
-	_di_IXMLHotelType hotel = GetHotel(XMLDocument1);
+	}
 
-	hotel->Delete(ListViewXML->ItemIndex);
+	// Potvrda brisanja
+	if (MessageDlg("Jeste li sigurni da želite obrisati ovu sobu?", mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0) == mrYes)
+	{
+		_di_IXMLHotelType hotel = GetHotel(XMLDocument1);
 
-	XMLDocument1->SaveToFile("podatci.xml");
+		hotel->Delete(ListViewXML->ItemIndex);
+
+		XMLDocument1->SaveToFile("podatci.xml");
+
+		// Osvježavanje prikaza
+		GumbUcitajXMLClick(Sender);
+	}
 }
 //---------------------------------------------------------------------------
 
