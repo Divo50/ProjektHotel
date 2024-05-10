@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef UnitTCPClientH
-#define UnitTCPClientH
+#ifndef UnitUDPclientH
+#define UnitUDPclientH
 //---------------------------------------------------------------------------
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
@@ -9,30 +9,23 @@
 #include <Vcl.Forms.hpp>
 #include <IdBaseComponent.hpp>
 #include <IdComponent.hpp>
-#include <IdTCPClient.hpp>
-#include <IdTCPConnection.hpp>
+#include <IdUDPBase.hpp>
+#include <IdUDPClient.hpp>
 //---------------------------------------------------------------------------
-class TFormTCPclient : public TForm
+class TFormUDPClient : public TForm
 {
 __published:	// IDE-managed Components
-	TIdTCPClient *IdTCPClient1;
-	TButton *ButtonTCP;
-	TEdit *EHost;
-	TEdit *EditSoba;
-	TLabel *LabelTCPclient;
-	TGroupBox *GroupBox1;
-	TEdit *EditKuhinja;
-	TEdit *EditRestoran;
-	TEdit *EditPraonica;
+	TIdUDPClient *IdUDPClient1;
+	TEdit *EditPoruka;
 	TLabel *Label1;
-	TLabel *Label2;
-	TLabel *Label3;
-	void __fastcall ButtonTCPClick(TObject *Sender);
+	TButton *ButtonUDP;
+	TEdit *EHost;
+	void __fastcall ButtonUDPClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-	__fastcall TFormTCPclient(TComponent* Owner);
+	__fastcall TFormUDPClient(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TFormTCPclient *FormTCPclient;
+extern PACKAGE TFormUDPClient *FormUDPClient;
 //---------------------------------------------------------------------------
 #endif

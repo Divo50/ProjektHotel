@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef UnitTCPClientH
-#define UnitTCPClientH
+#ifndef UnitServersH
+#define UnitServersH
 //---------------------------------------------------------------------------
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
@@ -9,30 +9,27 @@
 #include <Vcl.Forms.hpp>
 #include <IdBaseComponent.hpp>
 #include <IdComponent.hpp>
-#include <IdTCPClient.hpp>
-#include <IdTCPConnection.hpp>
+#include <IdCustomTCPServer.hpp>
+#include <IdTCPServer.hpp>
+#include <IdContext.hpp>
+#include <IdUDPBase.hpp>
+#include <IdUDPServer.hpp>
+#include <IdGlobal.hpp>
+#include <IdSocketHandle.hpp>
 //---------------------------------------------------------------------------
-class TFormTCPclient : public TForm
+class TFormServers : public TForm
 {
 __published:	// IDE-managed Components
-	TIdTCPClient *IdTCPClient1;
-	TButton *ButtonTCP;
-	TEdit *EHost;
-	TEdit *EditSoba;
-	TLabel *LabelTCPclient;
-	TGroupBox *GroupBox1;
-	TEdit *EditKuhinja;
-	TEdit *EditRestoran;
-	TEdit *EditPraonica;
-	TLabel *Label1;
-	TLabel *Label2;
-	TLabel *Label3;
-	void __fastcall ButtonTCPClick(TObject *Sender);
+	TIdTCPServer *IdTCPServer1;
+	TIdUDPServer *IdUDPServer1;
+	void __fastcall IdTCPServer1Execute(TIdContext *AContext);
+	void __fastcall IdUDPServer1UDPRead(TIdUDPListenerThread *AThread, const TIdBytes AData,
+          TIdSocketHandle *ABinding);
 private:	// User declarations
 public:		// User declarations
-	__fastcall TFormTCPclient(TComponent* Owner);
+	__fastcall TFormServers(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TFormTCPclient *FormTCPclient;
+extern PACKAGE TFormServers *FormServers;
 //---------------------------------------------------------------------------
 #endif
