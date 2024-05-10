@@ -59,16 +59,20 @@ void __fastcall TFormXML::GumbSaveXMLClick(TObject *Sender)
 	_di_IXMLSobaType soba = hotel->Soba[ListViewXML->ItemIndex];
 
 
-	soba->brojSobe = StrToInt(EditSoba->Text);
-	soba->imeGosta = EditIme->Text;
-	soba->prezimeGosta = EditPrezime->Text;
-	soba->brojKreveta = StrToInt(EditKrevet->Text);
-	soba->cijena = StrToInt(EditCijena->Text);
-	soba->balkon = EditBalkon->Text;
 
-	GumbUcitajXMLClick(Sender);
+		 soba->brojSobe = StrToInt(EditSoba->Text);
+         	soba->imeGosta = EditIme->Text;
+         	soba->prezimeGosta = EditPrezime->Text;
+         	soba->brojKreveta = StrToInt(EditKrevet->Text);
+         	soba->cijena = StrToInt(EditCijena->Text);
+         	soba->balkon = EditBalkon->Text;
 
-	XMLDocument1->SaveToFile("podatci.xml");
+			GumbUcitajXMLClick(Sender);
+
+			XMLDocument1->SaveToFile("podatci.xml");
+
+
+
 }
 //---------------------------------------------------------------------------
 

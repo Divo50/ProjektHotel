@@ -19,13 +19,10 @@ void __fastcall TFormJSON::GumbUcitajJSONClick(TObject *Sender)
 	// load json file
 	std::unique_ptr<TStringStream> jsonStream(new TStringStream);
 	jsonStream->LoadFromFile("popis.json");
-
 	// create JSON object that represents entire JSON file
 	TJSONObject* jsonFile = (TJSONObject*)TJSONObject::ParseJSONValue(jsonStream->DataString);
-
 	// create JSON object that represent array from inside addresBook object
 	TJSONArray* popisArray = (TJSONArray*)TJSONObject::ParseJSONValue(jsonFile->GetValue("popis")->ToString());
-
 	// read and output each address book contact
 	ListViewJSON->Items->Clear();
 	for (int i = 0; i < popisArray->Count; i++) {
@@ -35,7 +32,6 @@ void __fastcall TFormJSON::GumbUcitajJSONClick(TObject *Sender)
 		int godina_proizvodnje = popisArray->Items[i]->GetValue<int>("godina_proizvodnje");
 		double postotak_alkohola = popisArray->Items[i]->GetValue<double>("postotak_alkohola");
 		String drzava_proizvodnje = popisArray->Items[i]->GetValue<UnicodeString>("drzava_proizvodnje");
-
 		// show contact info inside ListView component
 		ListViewJSON->Items->Add();
 		ListViewJSON->Items->Item[i]->Caption = ime_pica;

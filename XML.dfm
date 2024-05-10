@@ -2,7 +2,7 @@ object FormXML: TFormXML
   Left = 0
   Top = 0
   Caption = 'FormXML'
-  ClientHeight = 640
+  ClientHeight = 522
   ClientWidth = 499
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
