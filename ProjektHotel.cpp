@@ -2,7 +2,7 @@
 
 #include <vcl.h>
 #pragma hdrstop
-
+#include <vector>
 #include "ProjektHotel.h"
 #include "Unit2.h"
 #include "XML.h"
@@ -13,11 +13,60 @@
 #include "UnitUDPclient.h"
 #include "Zaposlenici.h"
 #include <Registry.hpp>
+#include <map>
+#include <memory>
+#include <system.hash.hpp>
+#include <System.StrUtils.hpp>
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+#pragma link "uTPLb_BaseNonVisualComponent"
+#pragma link "uTPLb_Codec"
 #pragma resource "*.dfm"
 TForm1 *Form1;
+
 //---------------------------------------------------------------------------
+ class MyFileFormat {
+public:
+	wchar_t name[15];
+	float version;
+
+	MyFileFormat() {
+		wcsncpy(name, L"MyFileFormat", 15);
+		version = 1.0;
+	}
+};
+//---------------------------------------------------------------------------
+
+class Userdata {
+public:
+wchar_t korisnik[15], lozinka[100];
+
+	Userdata() {
+		wcsncpy(korisnik, L"", 15);
+		wcsncpy(lozinka, L"", 100);
+	}
+	Userdata(const wchar_t* _korisnik, const wchar_t* _lozinka) {
+		wcsncpy(korisnik, _korisnik, 15);
+		wcsncpy(lozinka, _lozinka, 100);
+	}
+};
+
+//---------------------------------------------------------------------------
+// Function to generate a deterministic salt based on the username using a hash
+UnicodeString generirajSol(UnicodeString username) {
+    std::unique_ptr<THashSHA2> sha2(new THashSHA2);
+    return sha2->GetHashString(username, THashSHA2::SHA256);
+}
+
+
+
+
+
+
+
+
+
+
 
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -88,63 +137,172 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 
 
 //---------------------------------------------------------------------------
+ std::map<String, std::map<String, String>> translation;
 
-void translateForm(TForm* Form, String Language, const std::map<String, std::map<String, String>>& translation){
-	for(int i = 0; i < Form->ComponentCount; i++) // iterate though all components on the form
-		for(auto it_ComponentName = translation.begin(); it_ComponentName != translation.end(); it_ComponentName++)
-			if(Form->Components[i]->Name == it_ComponentName->first) // find component by name
-				for(auto it_Language = it_ComponentName->second.begin(); it_Language != it_ComponentName->second.end(); it_Language++)
-					if(it_Language->first == Language) // find translation for the target language
-						if(IsPublishedProp(Form->Components[i], "Caption"))
-							SetPropValue(Form->Components[i], "Caption", it_Language->second);
+String getTranslation(const std::map<String, std::map<String, String>>& translation, const String& key, const String& language) {
+    auto itKey = translation.find(key);
+    if (itKey != translation.end()) {
+        auto itLang = itKey->second.find(language);
+        if (itLang != itKey->second.end()) {
+			return itLang->second;
+        }
+    }
+    return ""; // Default empty string if translation not found
 }
+
+void translateForm(TForm* Form, String Language, const std::map<String, std::map<String, String>>& translation) {
+	for (int i = 0; i < Form->ComponentCount; i++) {
+        String componentName = Form->Components[i]->Name;
+		String translatedText = getTranslation(translation, componentName, Language);
+        if (!translatedText.IsEmpty() && IsPublishedProp(Form->Components[i], "Caption")) {
+			SetPropValue(Form->Components[i], "Caption", translatedText);
+        }
+	}
+}
+
 
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ComboBox1Change(TObject *Sender)
 {
 // Dobivanje odabranog jezika iz ComboBoxa
-    String selectedLanguage = ComboBox1->Text;
+	String selectedLanguage = ComboBox1->Text;
 
-    // Ažuriranje prikaza forme
-    translateForm(this, selectedLanguage, translation);
+	// Ažuriranje prikaza forme
+	translateForm(this, selectedLanguage, translation);
 
-    // Spremanje odabranog jezika u INI datoteku
-    TIniFile* iniFile = new TIniFile("settings.ini");
-    iniFile->WriteString("Language", "SelectedLanguage", selectedLanguage);
+	// Spremanje odabranog jezika u INI datoteku
+	TIniFile* iniFile = new TIniFile("settings.ini");
+	iniFile->WriteString("Language", "SelectedLanguage", selectedLanguage);
 	delete iniFile;
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::ButtonRegClick(TObject *Sender)
 {
-  // Postavljanje teksta dobrodošlice na Form2
-    Form2->LabelDobrodosli->Caption = "Dobrodošao, " + EditKorisnik->Text + "!";
 
-    // Provjera je li označen CheckBoxZapamti
-    if (CheckBoxZapamti->Checked)
+    UnicodeString username = EditKorisnik->Text;
+    UnicodeString password = EditLozinka->Text;
+
+	// Generate a salt by hashing the username
+	UnicodeString sol = generirajSol(username);
+
+	// Concatenate the password with the salt
+	password += sol;
+
+    std::unique_ptr<THashSHA2> sha2(new THashSHA2);
+    UnicodeString hashedPassword = sha2->GetHashString(password, THashSHA2::SHA256);
+    std::vector<Userdata> users;
+
+    std::unique_ptr<TMemoryStream> userStream(new TMemoryStream);
+
+    try
     {
-        // Spremanje unesenih podataka u Windows registar
-        TRegistry *Registry = new TRegistry;
-        Registry->RootKey = HKEY_CURRENT_USER;
-        UnicodeString KLJUC = "Software\\appHotel";
-        if (Registry->OpenKey(KLJUC, true))
+        userStream->LoadFromFile("userdata.mff");
+    }
+    catch (...)
+    {
+        MyFileFormat header;
+        userStream->Clear();
+        userStream->Write(&header, sizeof(MyFileFormat));
+        userStream->Position = 0;
+    }
+
+    MyFileFormat header;
+    userStream->Position = 0;
+    userStream->Read(&header, sizeof(MyFileFormat));
+
+    if (String(header.name) != "MyFileFormat" || header.version != 1.0)
+    {
+        ShowMessage("Pogrešan format datoteke!");
+        return;
+    }
+
+    users.clear();
+    Userdata tmp;
+    while (userStream->Position < userStream->Size)
+    {
+        userStream->Read(&tmp, sizeof(Userdata));
+        users.push_back(tmp);
+    }
+
+    bool userFound = false;
+    for (int i = 0; i < users.size(); i++)
+    {
+        if (EditKorisnik->Text == users[i].korisnik)
         {
-            Registry->WriteString("Korisnik", EditKorisnik->Text);
-            Registry->WriteString("Lozinka", EditLozinka->Text);
+            userFound = true;
+            UnicodeString storedHash = users[i].lozinka;
+
+            // Concatenate the entered password with the salt
+			UnicodeString enteredPw = EditLozinka->Text + sol;
+            UnicodeString enteredHash = sha2->GetHashString(enteredPw, THashSHA2::SHA256);
+
+            if (enteredHash == storedHash)
+            {
+				ShowMessage("Točna šifra - Uspješan login!");
+				FormZaposlenici->ShowModal();
+                return;
+            }
+            else
+			{
+				MessageDlg("Pogrešna šifra!", mtWarning, TMsgDlgButtons() << mbOK, 0);
+                return;
+            }
+        }
+    }
+
+    if (!userFound)
+    {
+        const wchar_t* korisnik = EditKorisnik->Text.c_str();
+        const wchar_t* lozinka = hashedPassword.c_str();
+
+        users.push_back(Userdata(korisnik, lozinka));
+
+        userStream->Clear();
+        userStream->Position = 0;
+        userStream->Write(&header, sizeof(MyFileFormat));
+        for (int i = 0; i < users.size(); i++)
+        {
+            userStream->Write(&users[i], sizeof(Userdata));
+        }
+        userStream->SaveToFile("userdata.mff");
+        ShowMessage("Uspješna registracija!");
+    }
+
+	userStream->Clear();
+
+
+
+
+
+
+
+
+
+
+	if (CheckBoxZapamti->Checked)
+	{
+		TRegistry *Registry = new TRegistry;
+		Registry->RootKey = HKEY_CURRENT_USER;
+		UnicodeString KLJUC = "Software\\appHotel";
+		if (Registry->OpenKey(KLJUC, true))
+        {
+			Registry->WriteString("Korisnik", EditKorisnik->Text);
+			Registry->WriteString("Lozinka", EditLozinka->Text);
             Registry->CloseKey(); // Zatvori ključ
 		}
         delete Registry; // Oslobađanje resursa
-    }
-    else
-    {
-        // Ako CheckBoxZapamti nije označen, očisti polja za unos
+	}
+	else
+	{
 		EditKorisnik->Text = "";
-        EditLozinka->Text = "";
-    }
+		EditLozinka->Text = "";
+	}
 
-	// Prikazivanje Form2
-	Form2->ShowModal();
+	FormZaposlenici->ShowModal();
 }
+
+
 //---------------------------------------------------------------------------
 
 
@@ -200,15 +358,15 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 
     // Čitanje veličine fonta iz INI datoteke
     TIniFile* fontIni = new TIniFile(GetCurrentDir() + "\\settings.ini");
-    int fontSize = fontIni->ReadInteger("Font", "FontSize", Font->Size);
+	int fontSize = fontIni->ReadInteger("Font", "FontSize", Font->Size);
     delete fontIni;
 
     // Ažuriranje veličine fonta na cijeloj formi
-    Font->Size = fontSize;
+	Font->Size = fontSize;
 
     // Odmah ažuriraj veličinu fonta na FormZaposlenici
     if (FormZaposlenici) {
-        FormZaposlenici->RefreshSettings();
+		FormZaposlenici->RefreshSettings();
 	}
 }
  //------------------------------------------------------------------
@@ -237,14 +395,24 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
     // Čuvanje unesenih podataka u Windows registar
     TRegistry *Registry = new TRegistry;
     Registry->RootKey = HKEY_CURRENT_USER;
-    UnicodeString KLJUC = "Software\\appHotel";
-    if (Registry->OpenKey(KLJUC, true)) // Otvori ključ za pisanje
+	UnicodeString KLJUC = "Software\\appHotel";
+if (Registry->OpenKey(KLJUC, true)) // Otvori ključ za pisanje
     {
-        Registry->WriteString("Korisnik", EditKorisnik->Text);
-        Registry->WriteString("Lozinka", EditLozinka->Text);
+        if (CheckBoxZapamti->Checked)
+        {
+            Registry->WriteString("Korisnik", EditKorisnik->Text);
+            Registry->WriteString("Lozinka", EditLozinka->Text);
+            Registry->WriteBool("ZapamtiMe", CheckBoxZapamti->Checked);
+        }
+        else
+        {
+            Registry->DeleteValue("Korisnik");
+            Registry->DeleteValue("Lozinka");
+            Registry->WriteBool("ZapamtiMe", false);
+        }
         Registry->CloseKey(); // Zatvori ključ
     }
-    delete Registry; // Oslobađanje resursa
+	delete Registry; // Oslobađanje resursa
 }
 //---------------------------------------------------------------------------
 
@@ -309,6 +477,4 @@ void __fastcall TForm1::Button2Click(TObject *Sender)
 	}
 }
 //---------------------------------------------------------------------------
-
-
 
