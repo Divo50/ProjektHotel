@@ -15,6 +15,7 @@
 #include "Temperatura.h"
 #include "Currency.h"
 #include "Download.h"
+#include "C:\Users\Danko\Desktop\NTP\hoteli\ProjektHotel-main\DLL\Rent.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -24,6 +25,9 @@ __fastcall TFormZaposlenici::TFormZaposlenici(TComponent* Owner)
 	: TForm(Owner)
 {
 	ApplySettings();
+
+
+
 
 }
 //---------------------------------------------------------------------------
@@ -110,3 +114,20 @@ void TFormZaposlenici::RefreshSettings()
 	Font->Size = fontSize;
 
 }
+void __fastcall TFormZaposlenici::Button10Click(TObject *Sender)
+{
+	 TDllForm1* dllform = new TDllForm1(this);
+	if(dllform->ShowModal() == mrClose)
+
+	delete dllform;
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TFormZaposlenici::FormShow(TObject *Sender)
+{
+  LabelZaposlenik->Caption = "Korisnik: " + Form1->EditKorisnik->Text;
+
+}
+//---------------------------------------------------------------------------
+
