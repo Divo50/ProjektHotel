@@ -147,9 +147,12 @@ public:
 };
 
 
-Automobil* TDllForm1::pronadjiAutomobil(String marka, String gorivo, String mjenjac)
+
+
+
+Automobil* TDllForm1::pronadjiAutomobil(String marka, String gorivo, String mjenjac, String model)
 {
-	TStringList *jsonLines = new TStringList;
+    TStringList *jsonLines = new TStringList;
     jsonLines->LoadFromFile("auti.json");
     TJSONObject *jsonObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(jsonLines->Text));
     TJSONArray *jsonArray = static_cast<TJSONArray*>(jsonObject->GetValue("automobili"));
@@ -157,47 +160,56 @@ Automobil* TDllForm1::pronadjiAutomobil(String marka, String gorivo, String mjen
     if (!jsonArray)
     {
 		ShowMessage("Greška: Nema dostupnih automobila.");
-		return NULL;
-	}
+        return NULL;
+    }
 
-	for (int i = 0; i < jsonArray->Count; i++)
-    {
+    for (int i = 0; i < jsonArray->Count; i++)
+	{
         TJSONObject *jsonAutomobil = static_cast<TJSONObject*>(jsonArray->Items[i]);
         if (!jsonAutomobil)
-		{
+        {
             ShowMessage("Greška: Neuspješno uèitavanje automobila iz JSON-a.");
-			continue;
+            continue;
         }
 
         String jsonMarka = jsonAutomobil->GetValue("marka")->Value().Trim().LowerCase();
-		String jsonGorivo = jsonAutomobil->GetValue("gorivo")->Value().Trim().LowerCase();
-		String jsonMjenjac = jsonAutomobil->GetValue("mjenjac")->Value().Trim().LowerCase();
-		double jsonCijenaDan = jsonAutomobil->GetValue("cijena_dana")->Value().ToDouble();
-		String jsonModel = jsonAutomobil->GetValue("model")->Value().Trim().LowerCase();
-		bool dostupnost = jsonAutomobil->GetValue("dostupnost")->Value().Trim().LowerCase() == "true";
+        String jsonGorivo = jsonAutomobil->GetValue("gorivo")->Value().Trim().LowerCase();
+        String jsonMjenjac = jsonAutomobil->GetValue("mjenjac")->Value().Trim().LowerCase();
+        String jsonModel = jsonAutomobil->GetValue("model")->Value().Trim().LowerCase();
+        bool dostupnost = jsonAutomobil->GetValue("dostupnost")->Value().Trim().LowerCase() == "true";
 
-		if (jsonMarka == marka.Trim().LowerCase() && jsonGorivo == gorivo.Trim().LowerCase() && jsonMjenjac == mjenjac.Trim().LowerCase() && dostupnost)
+        if (jsonMarka == marka.Trim().LowerCase() && jsonGorivo == gorivo.Trim().LowerCase() && jsonMjenjac == mjenjac.Trim().LowerCase() && jsonModel == model.Trim().LowerCase())
         {
-			// Automobil je pronaðen, vraæamo ga
-			return new Automobil(jsonMarka, jsonGorivo, jsonMjenjac, jsonCijenaDan,jsonModel);
-		}
-	}
+            if (!dostupnost)
+            {
+                ShowMessage("Automobil je pronaðen, ali je trenutno rezerviran.");
+                return NULL;
+            }
+            return new Automobil(jsonMarka, jsonGorivo, jsonMjenjac, jsonAutomobil->GetValue("cijena_dana")->Value().ToDouble(), jsonModel);
+        }
+    }
 
-	// Nije pronaðen odgovarajuæi automobil
-	ShowMessage("Nije pronaðen automobil s odabranim karakteristikama.");
-	return NULL;
+    // Nije pronaðen odgovarajuæi automobil
+    ShowMessage("Nije pronaðen automobil s odabranim karakteristikama.");
+    return NULL;
 }
+
 
 void __fastcall TDllForm1::ButtonProvjeraClick(TObject *Sender)
 {
-	// Dohvati odabrane vrijednosti iz ComboBox kontrola
+
+
+
+    // Dohvati odabrane vrijednosti iz ComboBox kontrola
     String marka = ComboBoxMarka->Text;
     String gorivo = ComboBoxGorivo->Text;
     String mjenjac = ComboBoxMjenjac->Text;
+    String model = ComboBoxModel->Text;
 
-    pronadeniAutomobil = pronadjiAutomobil(marka, gorivo, mjenjac);
+    pronadeniAutomobil = pronadjiAutomobil(marka, gorivo, mjenjac, model);
 
-    if (pronadeniAutomobil != NULL) {
+    if (pronadeniAutomobil != NULL && pronadeniAutomobil->getMarka() != "")
+    {
         // Postoji automobil
         String model = UpperCase(pronadeniAutomobil->getModel());
 
@@ -219,31 +231,33 @@ void __fastcall TDllForm1::ButtonProvjeraClick(TObject *Sender)
         double popust = StrToFloatDef(PopustEdit->Text, 0.0);
 
         // Kreiraj poruku
-		UnicodeString poruka = "Automobil je dostupan.\n\nVaš automobil je:\nMarka: " + marka + "\nModel: " + model + "\nMjenjac: " + mjenjac + "\nGorivo: " + pronadeniAutomobil->getGorivo() + "\nCijena dana: " + FloatToStr(cijenaDan) + " EUR\n\nIzraèun vašeg najma je:\nBez popusta: " + FloatToStr(ukupnaCijenaBezPopusta) + " EUR";
+        UnicodeString poruka = "Automobil je dostupan.\n\nVaš automobil je:\nMarka: " + marka + "\nModel: " + model + "\nMjenjaè: " + mjenjac + "\nGorivo: " + pronadeniAutomobil->getGorivo() + "\nCijena dana: " + FloatToStr(cijenaDan) + " EUR\n\nIzraèun vašeg najma je:\nBez popusta: " + FloatToStr(ukupnaCijenaBezPopusta) + " EUR";
 
-		// Provjeri je li unesen popust
-		if (popust > 0) {
-			// Postavi popust u kalkulatoru
-			KalkulatorAuto kalkulator;
-			kalkulator.postaviPopust(popust);
+        // Provjeri je li unesen popust
+        if (popust > 0)
+        {
+            // Postavi popust u kalkulatoru
+            KalkulatorAuto kalkulator;
+            kalkulator.postaviPopust(popust);
 
-			// Izraèunaj ukupnu cijenu s popustom
-			double ukupnaCijenaSPopustom = kalkulator.izracunajUkupnuCijenu(cijenaDan, brojDana);
+            // Izraèunaj ukupnu cijenu s popustom
+            double ukupnaCijenaSPopustom = kalkulator.izracunajUkupnuCijenu(cijenaDan, brojDana);
 
-			// Dodaj informaciju o popustu u poruku
-			poruka += "\nSa popustom (" + FloatToStr(popust) + "%): " + FloatToStr(ukupnaCijenaSPopustom) + " EUR";
-		}
+            // Dodaj informaciju o popustu u poruku
+            poruka += "\nSa popustom (" + FloatToStr(popust) + "%): " + FloatToStr(ukupnaCijenaSPopustom) + " EUR";
+        }
 
-		// Prikaži poruku
-		ShowMessage(poruka);
-	} else {
-		// Automobil nije dostupan
-		ShowMessage("Nema dostupnog automobila s odabranim karakteristikama.");
+        // Prikaži poruku
+        ShowMessage(poruka);
 	}
+
+
+
 }
 void __fastcall TDllForm1::ButtonRezervirajClick(TObject *Sender)
 {
-if (pronadeniAutomobil == NULL) {
+  if (pronadeniAutomobil == NULL)
+    {
         ShowMessage("Prvo provjerite dostupnost automobila.");
         return;
     }
@@ -254,7 +268,8 @@ if (pronadeniAutomobil == NULL) {
     TJSONObject *jsonObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(jsonLines->Text));
     TJSONArray *jsonArray = static_cast<TJSONArray*>(jsonObject->GetValue("automobili"));
 
-    if (!jsonArray) {
+    if (!jsonArray)
+    {
         ShowMessage("Greška: Nema dostupnih automobila.");
         delete jsonLines;
         delete jsonObject;
@@ -264,9 +279,11 @@ if (pronadeniAutomobil == NULL) {
     bool automobilPronaðen = false;
 
     // Ažuriranje dostupnosti automobila u JSON datoteci
-    for (int i = 0; i < jsonArray->Count; i++) {
+    for (int i = 0; i < jsonArray->Count; i++)
+    {
         TJSONObject *jsonAutomobil = static_cast<TJSONObject*>(jsonArray->Items[i]);
-        if (!jsonAutomobil) {
+        if (!jsonAutomobil)
+        {
             ShowMessage("Greška: Neuspješno uèitavanje automobila iz JSON-a.");
             continue;
         }
@@ -276,25 +293,28 @@ if (pronadeniAutomobil == NULL) {
         String jsonMjenjac = jsonAutomobil->GetValue("mjenjac")->Value().Trim().LowerCase();
         String jsonModel = jsonAutomobil->GetValue("model")->Value().Trim().LowerCase();
 
-		if (jsonMarka == pronadeniAutomobil->getMarka().Trim().LowerCase() &&
+        if (jsonMarka == pronadeniAutomobil->getMarka().Trim().LowerCase() &&
             jsonGorivo == pronadeniAutomobil->getGorivo().Trim().LowerCase() &&
             jsonMjenjac == pronadeniAutomobil->getMjenjac().Trim().LowerCase() &&
-			jsonModel == pronadeniAutomobil->getModel().Trim().LowerCase())
+            jsonModel == pronadeniAutomobil->getModel().Trim().LowerCase())
         {
-			// Automobil je pronaðen, ažuriramo dostupnost
-			jsonAutomobil->Get("dostupnost")->JsonValue = new TJSONString("false");
-			automobilPronaðen = true;
-			break;
+            // Automobil je pronaðen, ažuriramo dostupnost
+            jsonAutomobil->Get("dostupnost")->JsonValue = new TJSONString("false");
+            automobilPronaðen = true;
+            break;
         }
     }
 
-    if (automobilPronaðen) {
+    if (automobilPronaðen)
+    {
         // Spremanje ažurirane JSON datoteke
         jsonLines->Text = jsonObject->ToString();
         jsonLines->SaveToFile("auti.json");
 
         ShowMessage("Automobil je uspješno rezerviran.");
-    } else {
+    }
+    else
+    {
         ShowMessage("Automobil nije pronaðen.");
     }
 
@@ -306,14 +326,14 @@ if (pronadeniAutomobil == NULL) {
 
 void __fastcall TDllForm1::ComboBoxMarkaChange(TObject *Sender)
 {
-      // Dohvati odabranu marku
-    String odabranaMarka = ComboBoxMarka->Text.Trim().LowerCase();
+	  // Dohvati odabranu marku
+	String odabranaMarka = ComboBoxMarka->Text.Trim().LowerCase();
 
-    // Uèitavanje JSON datoteke
-    TStringList *jsonLines = new TStringList;
-    jsonLines->LoadFromFile("auti.json");
-    TJSONObject *jsonObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(jsonLines->Text));
-    TJSONArray *jsonArray = static_cast<TJSONArray*>(jsonObject->GetValue("automobili"));
+	// Uèitavanje JSON datoteke
+	TStringList *jsonLines = new TStringList;
+	jsonLines->LoadFromFile("auti.json");
+	TJSONObject *jsonObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(jsonLines->Text));
+	TJSONArray *jsonArray = static_cast<TJSONArray*>(jsonObject->GetValue("automobili"));
 
     if (!jsonArray) {
         ShowMessage("Greška: Nema dostupnih automobila.");
@@ -348,7 +368,7 @@ void __fastcall TDllForm1::ComboBoxMarkaChange(TObject *Sender)
 
 void __fastcall TDllForm1::ButtonVratiClick(TObject *Sender)
 {
- // Dohvati odabrane vrijednosti iz ComboBox kontrola
+  // Dohvati odabrane vrijednosti iz ComboBox kontrola
     String marka = ComboBoxMarka->Text;
     String model = ComboBoxModel->Text;
     String gorivo = ComboBoxGorivo->Text;
@@ -360,7 +380,8 @@ void __fastcall TDllForm1::ButtonVratiClick(TObject *Sender)
     TJSONObject *jsonObject = static_cast<TJSONObject*>(TJSONObject::ParseJSONValue(jsonLines->Text));
     TJSONArray *jsonArray = static_cast<TJSONArray*>(jsonObject->GetValue("automobili"));
 
-    if (!jsonArray) {
+    if (!jsonArray)
+    {
         ShowMessage("Greška: Nema dostupnih automobila.");
         delete jsonLines;
         delete jsonObject;
@@ -370,38 +391,40 @@ void __fastcall TDllForm1::ButtonVratiClick(TObject *Sender)
     bool automobilPronaðen = false;
 
     // Ažuriranje dostupnosti automobila u JSON datoteci
-    for (int i = 0; i < jsonArray->Count; i++) {
+    for (int i = 0; i < jsonArray->Count; i++)
+    {
         TJSONObject *jsonAutomobil = static_cast<TJSONObject*>(jsonArray->Items[i]);
-        if (!jsonAutomobil) {
+        if (!jsonAutomobil)
+        {
             ShowMessage("Greška: Neuspješno uèitavanje automobila iz JSON-a.");
             continue;
         }
 
         String jsonMarka = jsonAutomobil->GetValue("marka")->Value().Trim().LowerCase();
-        String jsonModel = jsonAutomobil->GetValue("model")->Value().Trim().LowerCase();
         String jsonGorivo = jsonAutomobil->GetValue("gorivo")->Value().Trim().LowerCase();
         String jsonMjenjac = jsonAutomobil->GetValue("mjenjac")->Value().Trim().LowerCase();
+        String jsonModel = jsonAutomobil->GetValue("model")->Value().Trim().LowerCase();
 
-        if (jsonMarka == marka.Trim().LowerCase() &&
-            jsonModel == model.Trim().LowerCase() &&
-            jsonGorivo == gorivo.Trim().LowerCase() &&
-            jsonMjenjac == mjenjac.Trim().LowerCase())
+        if (jsonMarka == marka.Trim().LowerCase() && jsonGorivo == gorivo.Trim().LowerCase() && jsonMjenjac == mjenjac.Trim().LowerCase() && jsonModel == model.Trim().LowerCase())
         {
             // Automobil je pronaðen, ažuriramo dostupnost
             jsonAutomobil->Get("dostupnost")->JsonValue = new TJSONString("true");
-			automobilPronaðen = true;
+            automobilPronaðen = true;
             break;
         }
     }
 
-    if (automobilPronaðen) {
+    if (automobilPronaðen)
+    {
         // Spremanje ažurirane JSON datoteke
         jsonLines->Text = jsonObject->ToString();
         jsonLines->SaveToFile("auti.json");
 
-        ShowMessage("Automobil je uspješno vraæen s rezervacije.");
-    } else {
-        ShowMessage("Automobil nije pronaðen u rezervaciji.");
+        ShowMessage("Automobil je uspješno vraæen.");
+    }
+    else
+    {
+        ShowMessage("Automobil nije pronaðen.");
     }
 
     // Oslobaðanje resursa

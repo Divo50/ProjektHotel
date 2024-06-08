@@ -53,7 +53,8 @@ __published:	// IDE-managed Components
 	void __fastcall ComboBoxMarkaChange(TObject *Sender);
 	void __fastcall ButtonVratiClick(TObject *Sender);
 private:
-			   Automobil* pronadjiAutomobil(String marka, String gorivo, String mjenjac); // Deklaracija funkcije
+
+   				 Automobil* pronadjiAutomobil(String marka, String gorivo, String mjenjac, String model);
                Automobil* pronadeniAutomobil; // Dodano za pohranu pronaðenog automobila
 public:		// User declarations
 	__fastcall TDllForm1(TComponent* Owner);
